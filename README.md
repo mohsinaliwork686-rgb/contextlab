@@ -60,7 +60,7 @@ number it cannot stand behind is worse than one that admits the uncertainty.
 | Day | |
 |-----|-|
 | Mon | Plan and README ✅ |
-| Tue | Scaffold, model data, tokenizer |
+| Tue | Scaffold, model data, tokenizer ✅ |
 | Wed | Budget allocation, trimming, cost, share links |
 | Thu | Page and components, CI |
 | Fri | Polish, deploy, screenshot, publish |

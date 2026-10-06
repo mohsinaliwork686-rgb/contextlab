@@ -95,6 +95,18 @@ reads it rather than assuming.
 
 ### 4.2 Bundle size
 
+**Changed on the Tuesday, when the model table was written.** The shipped table contains
+only models whose numbers could be verified against a primary source, and none of those
+families publishes a tokenizer that runs locally in a browser — their exact counts come
+from a vendor endpoint this tool will not call. So nothing in the table is `"exact"` yet,
+and pulling in a BPE library plus its ranks table would add roughly a megabyte and a half
+to the bundle for code that nothing currently exercises.
+
+The `countMethod` field, the `encoding` field and its validation all stay, and
+`countTokens` has a single documented place where the exact path hooks in. It gets built
+when a model that needs it is added, not before. The rest of this section still describes
+how it will work when that happens.
+
 A real BPE tokenizer ships a large ranks table. Loading that before the page can render would make
 the first paint slow for a tool whose entire value is being quick to reach for.
 
@@ -217,7 +229,8 @@ is the one part of this that other people touch, and a crash there is the failur
 
 | Risk | Mitigation |
 |------|------------|
-| Exact tokenizer bundle makes first paint slow | Estimator renders immediately; exact loads lazily and upgrades in place |
+| Exact tokenizer bundle makes first paint slow | Estimator renders immediately; exact loads lazily and upgrades in place. Not shipped yet — see 4.2 |
+| Model table covers one vendor, so the tool looks narrow | Every entry carries a source link and the schema is documented; adding a vendor is a data edit, and the README asks for exactly that |
 | Pricing drifts and the tool misleads | `lastUpdated` on screen, validated at build, PRs invited |
 | Estimates presented as if they were exact | `countMethod` is on every model and the UI marks estimates with `~` |
 | Large input freezes the browser while counting | Debounce input; count off the critical path; cap single-layer size with a clear message |
