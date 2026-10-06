@@ -1,0 +1,126 @@
+{
+  "lastUpdated": "2026-09-25",
+  "note": "Hand-maintained. Prices are per million tokens in USD. Check the source link before relying on a figure, and send a pull request if one has moved.",
+  "models": [
+    {
+      "id": "claude-fable-5-1",
+      "label": "Claude Fable 5.1",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 10,
+      "outputPerMillion": 50,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-fable-5",
+      "label": "Claude Fable 5",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 10,
+      "outputPerMillion": 50,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "label": "Claude Opus 5.5",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 4,
+      "outputPerMillion": 20,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-opus-5",
+      "label": "Claude Opus 5",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 5,
+      "outputPerMillion": 25,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-opus-4-8",
+      "label": "Claude Opus 4.8",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 5,
+      "outputPerMillion": 25,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-opus-4-7",
+      "label": "Claude Opus 4.7",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 5,
+      "outputPerMillion": 25,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-opus-4-6",
+      "label": "Claude Opus 4.6",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 5,
+      "outputPerMillion": 25,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-sonnet-5-5",
+      "label": "Claude Sonnet 5.5",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 2,
+      "outputPerMillion": 10,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-sonnet-5",
+      "label": "Claude Sonnet 5",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 2,
+      "outputPerMillion": 10,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "label": "Claude Sonnet 4.6",
+      "family": "claude",
+      "contextWindow": 1000000,
+      "maxOutput": 128000,
+      "inputPerMillion": 3,
+      "outputPerMillion": 15,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "label": "Claude Haiku 4.5",
+      "family": "claude",
+      "contextWindow": 200000,
+      "inputPerMillion": 1,
+      "outputPerMillion": 5,
+      "countMethod": "estimated",
+      "source": "https://docs.claude.com/en/docs/about-claude/pricing"
+    }
+  ]
+}
