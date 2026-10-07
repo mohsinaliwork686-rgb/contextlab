@@ -150,6 +150,9 @@ Fallback: if `CompressionStream` is unavailable, store uncompressed and warn ear
 
 ## 5. Data model
 
+Written on the Monday, corrected on the Wednesday when the allocation logic was built.
+The six changes and why they were needed are listed under it.
+
 ```ts
 type LayerId = "system" | "tools" | "examples" | "retrieved" | "history"
 
@@ -157,27 +160,32 @@ interface Layer {
   id: LayerId
   label: string
   text: string
-  trimmable: boolean   // system and tools are not
 }
 
-interface Model {
-  id: string
+interface TrimRule {
+  id: LayerId
+  dropFrom: "start" | "end"
+}
+
+interface LayerAllocation {
+  id: LayerId
   label: string
-  family: string
-  contextWindow: number
-  maxOutput: number
-  inputPerMillion: number
-  outputPerMillion: number
-  countMethod: "exact" | "estimated"
-  encoding?: string    // only when countMethod is "exact"
+  tokens: number        // the layer in full
+  kept: number          // what survives trimming
+  dropped: number
+  keptFrom: number      // the surviving slice: text.slice(keptFrom, keptTo)
+  keptTo: number
 }
 
 interface Allocation {
-  perLayer: { id: LayerId; tokens: number; kept: number; dropped: number }[]
+  perLayer: LayerAllocation[]
+  model: Model
   outputReserve: number
-  total: number
-  limit: number
-  overflowBy: number        // 0 when it fits
+  inputBudget: number          // window less the reserve, never below zero
+  total: number                // before trimming
+  keptTotal: number            // after trimming
+  overflowBy: number           // how far the untrimmed request overruns. 0 when it fits
+  unresolvedOverflow: number   // still over after trimming everything allowed
   firstLayerOverLimit: LayerId | null
   cost: { input: number; output: number; total: number }
 }
@@ -185,6 +193,35 @@ interface Allocation {
 
 `budget.ts` is one function: `allocate(layers, model, outputReserve, policy) -> Allocation`.
 Everything on screen is a rendering of that one return value.
+
+### What changed from the Monday draft, and why
+
+1. **`Layer.trimmable` is gone.** The draft had a boolean on the layer *and* a trim-order
+   policy, which is two sources of truth for one fact — they can disagree, and then which
+   wins? A layer that does not appear in the policy is never trimmed. That absence is now
+   the only definition.
+
+2. **`TrimRule` carries a direction.** A list of layer ids cannot say *which end* to cut
+   from, and the end matters: history is trimmed from the start because the oldest turns
+   are the losable ones, while retrieved chunks are trimmed from the end because they
+   arrive ranked. Cutting history from the end would throw away the newest message, which
+   is usually the question.
+
+3. **`LayerAllocation` carries character offsets.** The draft promised the page would grey
+   out what gets cut, in place, but gave it only token counts — no way to know *where* the
+   cut falls. `keptFrom`/`keptTo` is what makes that promise renderable.
+
+4. **`limit` became `inputBudget`.** "Limit" was ambiguous between the context window and
+   the window minus the output reserve. Those are different numbers and the page needs the
+   second one.
+
+5. **`unresolvedOverflow` was added.** `overflowBy` alone cannot distinguish "over, but
+   trimming fixes it" from "the system prompt and tools do not fit on their own, so nothing
+   can fix it". Those are different messages to the reader.
+
+6. **`Model.maxOutput` is optional.** Not every vendor publishes an output cap. Making it
+   required would have meant inventing a number, so `outputCeiling()` falls back to the
+   context window instead.
 
 ## 6. Pricing data goes stale
 
