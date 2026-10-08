@@ -1,69 +1,135 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useDeferredValue, useEffect, useMemo, useState } from "react"
+
+import { AllocationTable } from "@/components/AllocationTable"
+import { CompositionBar } from "@/components/CompositionBar"
+import { LayerEditor } from "@/components/LayerEditor"
+import { ModelPicker } from "@/components/ModelPicker"
+import { ShareControls } from "@/components/ShareControls"
+import { StatTiles } from "@/components/StatTiles"
+import { WindowMeter } from "@/components/WindowMeter"
+import { LAYER_ORDER, allocate, type Layer, type LayerId } from "@/lib/budget"
+import { DEFAULT_OUTPUT_RESERVE, LAYER_SPECS, SAMPLE, overflowingSample } from "@/lib/layers"
+import { MODEL_TABLE, defaultModel, findModel, outputCeiling } from "@/lib/models"
+import { decodeState, type SharedState } from "@/lib/share"
+
+export default function Page() {
+  const [modelId, setModelId] = useState(defaultModel().id)
+  const [outputReserve, setOutputReserve] = useState(DEFAULT_OUTPUT_RESERVE)
+  const [texts, setTexts] = useState<Record<LayerId, string>>(SAMPLE)
+
+  // Typing stays responsive on a large paste: the allocation trails the input slightly
+  // rather than blocking each keystroke on a recount.
+  const deferredTexts = useDeferredValue(texts)
+
+  // A shared link restores its state; anything malformed falls back to the sample.
+  useEffect(() => {
+    const encoded = new URLSearchParams(window.location.search).get("s")
+    if (!encoded) return
+    decodeState(encoded).then((shared) => {
+      if (!shared) return
+      if (findModel(shared.modelId)) setModelId(shared.modelId)
+      setOutputReserve(shared.outputReserve)
+      const restored = Object.fromEntries(LAYER_ORDER.map((id) => [id, ""])) as Record<LayerId, string>
+      for (const layer of shared.layers) restored[layer.id] = layer.text
+      setTexts(restored)
+    })
+  }, [])
+
+  const model = findModel(modelId) ?? defaultModel()
+
+  const layers: Layer[] = useMemo(
+    () => LAYER_SPECS.map((spec) => ({ id: spec.id, label: spec.label, text: deferredTexts[spec.id] })),
+    [deferredTexts],
+  )
+
+  const allocation = useMemo(() => allocate(layers, model, outputReserve), [layers, model, outputReserve])
+
+  const shareState: SharedState = {
+    modelId,
+    outputReserve,
+    layers: LAYER_ORDER.map((id) => ({ id, text: texts[id] })),
+  }
+
+  function loadOverflow() {
+    setModelId("claude-haiku-4-5")
+    setTexts(overflowingSample())
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+      <header className="mb-8 max-w-2xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">contextlab</h1>
+        <p className="mt-2 text-ink-2">
+          Plan your context window before it overflows. See what fits, what gets cut, and what it
+          costs. Everything runs in your browser; nothing you paste leaves it.
+        </p>
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+        <div className="space-y-4">
+          <ModelPicker
+            model={model}
+            outputReserve={outputReserve}
+            outputCeiling={outputCeiling(model)}
+            onModelChange={setModelId}
+            onReserveChange={setOutputReserve}
+          />
+
+          <div className="flex flex-wrap gap-2 text-xs">
+            <button type="button" onClick={() => setTexts(SAMPLE)} className="rounded-md border border-[var(--border)] bg-surface px-2.5 py-1 text-ink-2 hover:text-ink">
+              Load the sample
+            </button>
+            <button type="button" onClick={loadOverflow} className="rounded-md border border-[var(--border)] bg-surface px-2.5 py-1 text-ink-2 hover:text-ink">
+              Load one that overflows
+            </button>
+            <button
+              type="button"
+              onClick={() => setTexts(Object.fromEntries(LAYER_ORDER.map((id) => [id, ""])) as Record<LayerId, string>)}
+              className="rounded-md border border-[var(--border)] bg-surface px-2.5 py-1 text-ink-2 hover:text-ink"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              Clear everything
+            </button>
+          </div>
+
+          {LAYER_SPECS.map((spec) => (
+            <LayerEditor
+              key={spec.id}
+              spec={spec}
+              text={texts[spec.id]}
+              entry={allocation.perLayer.find((entry) => entry.id === spec.id)}
+              method={model.countMethod}
+              onChange={(value) => setTexts((current) => ({ ...current, [spec.id]: value }))}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          ))}
         </div>
-      </main>
-    </div>
-  );
+
+        {/* On a phone the answer comes first; on a wide screen it sits beside the inputs. */}
+        <aside className="order-first space-y-5 lg:order-none lg:sticky lg:top-6 lg:self-start">
+          <StatTiles allocation={allocation} />
+
+          <div className="space-y-5 rounded-lg border border-[var(--border)] bg-surface p-4">
+            <WindowMeter allocation={allocation} />
+            <CompositionBar allocation={allocation} />
+          </div>
+
+          <div className="rounded-lg border border-[var(--border)] bg-surface p-4">
+            <AllocationTable allocation={allocation} />
+          </div>
+
+          <ShareControls state={shareState} />
+        </aside>
+      </div>
+
+      <footer className="mt-12 border-t border-hairline pt-6 text-xs text-ink-3">
+        <p>
+          Prices last checked {MODEL_TABLE.lastUpdated}. {MODEL_TABLE.note}{" "}
+          Counts marked <span className="text-ink-2">~</span> are estimates: these models do not
+          publish a tokenizer that runs in a browser, and contextlab never sends your text anywhere
+          to get an exact one.
+        </p>
+      </footer>
+    </main>
+  )
 }
