@@ -223,6 +223,42 @@ Everything on screen is a rendering of that one return value.
    required would have meant inventing a number, so `outputCeiling()` falls back to the
    context window instead.
 
+## 5a. What changed when the page was built
+
+Recorded on the Thursday, after rendering the page and looking at it rather than trusting
+the build.
+
+1. **Two visuals, not one bar.** The draft had a single stacked bar against the context
+   window. On a million-token window a realistic request is about half a percent, so that
+   bar reads as empty and says nothing about which layer is spending. It is now a
+   *window meter* (one fill, colour carries severity, scaled to the window) and a
+   *composition bar* (one colour per layer, scaled to the input). Each answers one question.
+
+2. **The output reserve is not in the composition bar.** It is usually the largest single
+   number, and including it squeezed all five input layers into a sliver at one end. It
+   is in the meter and the table instead.
+
+3. **A cut preview instead of greying out the textarea.** Greying text inside a native
+   textarea means a backdrop whose font metrics, padding and scroll position track the
+   control exactly, across browsers. A preview of the boundary itself — the last of what
+   is dropped, then the first of what survives — answers the same question with none of
+   that, and shows the cut landing mid-sentence, which is the honest behaviour of
+   token-based truncation.
+
+4. **"Cost at most", not "cost per request".** The output side assumes the answer uses the
+   whole reserve. That is a ceiling, and the label now says so.
+
+5. **The table reports share of input.** It first reported share of input plus reserve,
+   while the bar reported share of input, so the two disagreed. The table is the accessible
+   version of the bar, so they now match.
+
+6. **Results come first on a phone.** In the sidebar on a wide screen; above the editors on
+   a narrow one, so the answer is not five text boxes away.
+
+The palette is the validated categorical set in slot order, which is also the stack order.
+Three light-mode colours are under 3:1 against the surface, which is acceptable only
+because the page always carries a legend and the table. Do not remove either.
+
 ## 6. Pricing data goes stale
 
 It will. Prices change and a tool quoting last quarter's numbers is worse than one quoting none.
