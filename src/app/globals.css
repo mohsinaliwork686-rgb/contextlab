@@ -1,26 +1,115 @@
 @import "tailwindcss";
 
+/*
+ * Colour tokens.
+ *
+ * The six series colours are the validated categorical slots, in slot order, which is
+ * also the stack order. That ordering is what keeps neighbouring segments apart for
+ * colour-blind readers (worst adjacent CVD separation 9.1 light, 8.4 dark), so do not
+ * reorder the layers without re-running the palette validator.
+ *
+ * Dark is its own stepped set, not an automatic inversion. It is declared under both
+ * the OS media query and an explicit data-theme attribute so either can win.
+ *
+ * Three light-mode slots (aqua, yellow, magenta) sit under 3:1 against the light
+ * surface. That is acceptable only because the page always shows a legend and a table
+ * of the same numbers; remove either and those slots stop being legible.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --hairline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --track: #f0efec;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --series-1: #2a78d6; /* system prompt */
+  --series-2: #eb6834; /* tool definitions */
+  --series-3: #1baf7a; /* few-shot examples */
+  --series-4: #eda100; /* retrieved context */
+  --series-5: #e87ba4; /* conversation history */
+  --series-6: #008300; /* output reserve */
+
+  --status-good: #0ca30c;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --status-good-text: #006300;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --hairline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --track: #2c2c2a;
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+
+    --status-good-text: #0ca30c;
   }
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --hairline: #2c2c2a;
+  --baseline: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --track: #2c2c2a;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+
+  --status-good-text: #0ca30c;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink: var(--text-primary);
+  --color-ink-2: var(--text-secondary);
+  --color-ink-3: var(--text-muted);
+  --color-hairline: var(--hairline);
+  --color-track: var(--track);
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Columns of numbers align; standalone figures keep proportional digits. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
