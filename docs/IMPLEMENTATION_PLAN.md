@@ -281,6 +281,11 @@ The file is validated at build time, so a malformed edit fails CI rather than pr
 | **Thu** | The page and components. Then CI: typecheck, lint, vitest, build |
 | **Fri** | Polish, one Playwright happy path, screenshot, deploy, README with the real screenshot, publish |
 
+**Changed on the Friday:** hosted on GitHub Pages as a static export instead of Vercel. The
+app runs entirely in the browser, so it is plain files either way, and Pages needs no second
+account. The browser tests ended up as five short ones rather than one, because the share
+link round trip is the part strangers touch.
+
 Components come late on purpose. If `lib/` is right, the components are thin; if `lib/` is wrong,
 building the UI first just means building it twice.
 
@@ -314,7 +319,7 @@ is the one part of this that other people touch, and a crash there is the failur
 - [ ] Public repo, description and topics
 - [ ] This plan, committed before the code
 - [ ] README with the problem, a real screenshot, the live URL, usage and non-goals
-- [ ] Deployed and the URL set as the repo website
+- [ ] Deployed (GitHub Pages) and the URL set as the repo website
 - [ ] vitest covering the table in section 8, one Playwright happy path
 - [ ] CI green: typecheck, lint, test, build
 - [ ] Works on a phone, and with the exact tokenizer blocked
