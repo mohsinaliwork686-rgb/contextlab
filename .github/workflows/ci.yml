@@ -32,3 +32,50 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+
+  # The happy path in a real browser, against the real static build.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Make sure Chrome is present
+        run: npx playwright install chrome
+      - run: npm run e2e
+
+  # Only on main, and only once every check above has passed.
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [check, e2e]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Build for /contextlab
+        run: npm run build
+        env:
+          PAGES_BASE_PATH: /contextlab
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: out
+      - id: deployment
+        uses: actions/deploy-pages@v5
