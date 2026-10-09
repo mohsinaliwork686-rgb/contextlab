@@ -14,7 +14,14 @@ export function AllocationTable({ allocation }: { allocation: Allocation }) {
   // Share of the input, matching the composition bar. The table is the accessible
   // version of that bar, so the two must report the same numbers.
   const input = allocation.keptTotal
-  const percent = (tokens: number) => (input > 0 ? `${((tokens / input) * 100).toFixed(1)}%` : "—")
+  const percent = (tokens: number) => {
+    if (input <= 0) return "—"
+    const share = (tokens / input) * 100
+    // A layer that exists must never read as zero: 92 tokens out of 195,000 rounds to
+    // "0.0%", which says the layer is empty when it is not.
+    if (tokens > 0 && share < 0.1) return "<0.1%"
+    return `${share.toFixed(1)}%`
+  }
 
   return (
     <table className="w-full border-collapse text-sm">
