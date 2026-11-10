@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   output: "export",
   basePath,
   images: { unoptimized: true },
+  // Stops `next dev` writing AGENTS.md and CLAUDE.md into the repo.
+  agentRules: false,
 }
 
 export default nextConfig

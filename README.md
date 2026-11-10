@@ -89,7 +89,11 @@ The file is validated when the app builds, so a bad edit fails the build rather 
 
 ## Run it
 
+Needs Node 20.9 or later (CI runs 20 and 22).
+
 ```bash
+git clone https://github.com/mohsinaliwork686-rgb/contextlab
+cd contextlab
 npm install
 npm run dev          # http://localhost:3000
 ```
@@ -99,6 +103,9 @@ npm test             # unit tests for the logic
 npm run build        # static export into out/
 npm run e2e          # browser tests against that build
 ```
+
+`npm run e2e` tests the build in `out/`, so run `npm run build` first. It uses your installed
+Google Chrome and serves `out/` with `python3`, so both need to be on your machine.
 
 ## How it is built
 
